@@ -65,6 +65,12 @@ class CacheManager:
     ) -> None:
         cache_config = app.config[cache_config_key]
         cache_type = cache_config.get("CACHE_TYPE")
+
+        # TODO by james on cache_manager
+        # 查看缓存配置
+        logger.warning(f">>> cache_config_key = {cache_config_key}")
+        logger.warning(f">>> cache_type = {cache_type}")
+
         if (required and cache_type is None) or cache_type == "SupersetMetastoreCache":
             if cache_type is None and not app.debug:
                 logger.warning(

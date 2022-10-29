@@ -2271,6 +2271,7 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
             )
         )
 
+    # TODO by james on sql_lab 中取消查询
     @has_access_api
     @handle_api_exception
     @expose("/stop_query/", methods=["POST"])
@@ -2286,6 +2287,11 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
     def stop_query(self) -> FlaskResponse:
         client_id = request.form.get("client_id")
         query = db.session.query(Query).filter_by(client_id=client_id).one()
+
+        logger.warning(f">>> client_id = {client_id}")
+        logger.warning(f">>> query = {query}")
+        logger.warning(f">>> cancel_query_id = {query.extra.get('cancel_query')}")
+
         if query.status in [
             QueryStatus.FAILED,
             QueryStatus.SUCCESS,

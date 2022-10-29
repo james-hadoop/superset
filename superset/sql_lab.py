@@ -614,7 +614,9 @@ def cancel_query(query: Query) -> bool:
 
     cancel_query_id = query.extra.get(cancel_query_key)
     if cancel_query_id is None:
-        return False
+        # TODO by james on change False to True
+        return True
+        # return False
 
     engine = query.database.get_sqla_engine(query.schema, source=QuerySource.SQL_LAB)
 

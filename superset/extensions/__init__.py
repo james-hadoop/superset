@@ -41,6 +41,7 @@ class ResultsBackendManager:
         self._results_backend = None
         self._use_msgpack = False
 
+    # 定义 _results_backend 的位置
     def init_app(self, app: Flask) -> None:
         self._results_backend = app.config["RESULTS_BACKEND"]
         self._use_msgpack = app.config["RESULTS_BACKEND_USE_MSGPACK"]
