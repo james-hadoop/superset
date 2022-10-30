@@ -61,6 +61,7 @@ from superset.utils.core import is_test, parse_boolean_string
 from superset.utils.encrypt import SQLAlchemyUtilsAdapter
 from superset.utils.log import DBEventLogger
 from superset.utils.logging_configurator import DefaultLoggingConfigurator
+from cachelib.redis import RedisCache
 
 logger = logging.getLogger(__name__)
 
@@ -881,7 +882,8 @@ SQLLAB_CTAS_SCHEMA_NAME_FUNC: Optional[
 
 # If enabled, it can be used to store the results of long-running queries
 # in SQL Lab by using the "Run Async" button/feature
-RESULTS_BACKEND: Optional[BaseCache] = None
+# RESULTS_BACKEND: Optional[BaseCache] = None
+RESULTS_BACKEND = RedisCache(host='localhost', port=6379, key_prefix='superset_results')
 
 # Use PyArrow and MessagePack for async query results serialization,
 # rather than JSON. This feature requires additional testing from the

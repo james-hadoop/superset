@@ -2478,6 +2478,11 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
             return redirect("/")
 
         blob = None
+
+        # 2022-10-30 13:22:49,842:WARNING:superset.views.core:>>> results_backend = None
+        # 2022-10-30 13:22:49,842:WARNING:superset.views.core:>>> results_key = None
+        logger.warning(f">>> results_backend = {results_backend}")
+        logger.warning(f">>> results_key = {query.results_key}")
         if results_backend and query.results_key:
             logger.info("Fetching CSV from results backend [%s]", query.results_key)
             blob = results_backend.get(query.results_key)
