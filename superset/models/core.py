@@ -631,6 +631,8 @@ class Database(
         :param force: whether to force refresh the cache
         :return: schema list
         """
+
+        logger.warning(f"->=> self.inspector = {self.inspector}")
         return self.db_engine_spec.get_schema_names(self.inspector)
 
     @property

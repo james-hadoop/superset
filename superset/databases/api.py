@@ -419,6 +419,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             )
             return self.response_422(message=str(ex))
 
+    # TODO by james on /api/v1/database/1/schemas/
     @expose("/<int:pk>/schemas/")
     @protect()
     @safe
@@ -461,7 +462,10 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             500:
               $ref: '#/components/responses/500'
         """
+        logger.warning(f"->=> pk = {pk}")
         database = self.datamodel.get(pk, self._base_filters)
+        logger.warning(f"->=> database = {database}")
+
         if not database:
             return self.response_404()
         try:
@@ -470,6 +474,9 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                 cache_timeout=database.schema_cache_timeout,
                 force=kwargs["rison"].get("force", False),
             )
+
+            logger.warning(f"->=> schemas = {schemas}")
+
             schemas = security_manager.get_schemas_accessible_by_user(database, schemas)
             return self.response(200, result=schemas)
         except OperationalError:
