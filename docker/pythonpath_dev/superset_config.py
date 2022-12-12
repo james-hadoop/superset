@@ -62,6 +62,10 @@ SQLALCHEMY_DATABASE_URI = "%s://%s:%s@%s:%s/%s" % (
     DATABASE_DB,
 )
 
+# hard code by james
+SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://superset:superset@host.docker.internal:3306/superset?charset=utf8'
+SQLALCHEMY_ECHO = True
+
 REDIS_HOST = get_env_variable("REDIS_HOST")
 REDIS_PORT = get_env_variable("REDIS_PORT")
 REDIS_CELERY_DB = get_env_variable("REDIS_CELERY_DB", "0")

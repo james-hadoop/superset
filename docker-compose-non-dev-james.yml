@@ -16,12 +16,12 @@
 #
 x-superset-image: &superset-image apache/superset:${TAG:-latest-dev}
 x-superset-depends-on: &superset-depends-on
-  - db
+#  - db
   - redis
 x-superset-volumes: &superset-volumes
   # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
-  - ./docker:/app/docker
-  - superset_home:/app/superset_home
+  - ~/data/docker/superset/apache_superset/docker:/app/docker
+  - ~/data/docker/superset/apache_superset/superset_home:/app/superset_home
 
 version: "3.7"
 services:
@@ -32,13 +32,13 @@ services:
     volumes:
       - redis:/data
 
-  db:
-    env_file: docker/.env-non-dev
-    image: postgres:10
-    container_name: superset_db
-    restart: unless-stopped
-    volumes:
-      - db_home:/var/lib/postgresql/data
+#  db:
+#    env_file: docker/.env-non-dev
+#    image: postgres:10
+#    container_name: superset_db
+#    restart: unless-stopped
+#    volumes:
+#      - db_home:/var/lib/postgresql/data
 
   superset:
     env_file: docker/.env-non-dev
