@@ -43,8 +43,7 @@ if [ "$CYPRESS_CONFIG" == "true" ]; then
     ADMIN_PASSWORD="general"
     export SUPERSET_CONFIG=tests.integration_tests.superset_test_config
     export SUPERSET_TESTENV=true
-#    export SUPERSET__SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://superset:superset@db:5432/superset
-    export SUPERSET__SQLALCHEMY_DATABASE_URI=mysql+mysqlconnector://developer:superset@host.docker.internal:3306/superset?charset=utf8
+    export SUPERSET__SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://superset:superset@db:5432/superset
 fi
 # Initialize the database
 echo_step "1" "Starting" "Applying DB migrations"

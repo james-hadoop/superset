@@ -9,7 +9,7 @@ from cachelib.redis import RedisCache
 
 
 ROW_LIMIT = 5000
-SUPERSET_WEBSERVER_PORT = 18008
+SUPERSET_WEBSERVER_PORT = 8088
 
 # Setup default language
 BABEL_DEFAULT_LOCALE = 'zh'
@@ -37,7 +37,7 @@ APP_NAME = 'Qimao-Superset'
 # Uncomment to setup an App icon
 # APP_ICON = '/static/assets/images/superset-logo@2x.png'
 
-SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://superset:27P4DRFKpnPkHaJ8PK@rm-2zenf3n1fu96zs4z6.mysql.rds.aliyuncs.com:3306/superset?charset=utf8'
+SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://superset:superset@172.17.0.1:3306/superset?charset=utf8'
 
 # add on 2022-10-26
 #from cachelib.redis import RedisCache
