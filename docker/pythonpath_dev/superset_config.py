@@ -1,118 +1,98 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-# This file is included in the final Docker image and SHOULD be overridden when
-# deploying the image to prod. Settings configured here are intended for use in local
-# development environments. Also note that superset_config_docker.py is imported
-# as a final step as a means to override "defaults" configured here
-#
-import logging
-import os
+
+# ---------------------------------------------------------
+# Superset specific config
+# ---------------------------------------------------------
+from cachelib.redis import RedisCache
 from datetime import timedelta
-from typing import Optional
-
-from cachelib.file import FileSystemCache
-from celery.schedules import crontab
-
-logger = logging.getLogger()
+from superset.superset_typing import CacheConfig
+from cachelib.redis import RedisCache
 
 
-def get_env_variable(var_name: str, default: Optional[str] = None) -> str:
-    """Get the environment variable or raise exception."""
-    try:
-        return os.environ[var_name]
-    except KeyError:
-        if default is not None:
-            return default
-        else:
-            error_msg = "The environment variable {} was missing, abort...".format(
-                var_name
-            )
-            raise EnvironmentError(error_msg)
+ROW_LIMIT = 5000
+SUPERSET_WEBSERVER_PORT = 18008
+
+# Setup default language
+BABEL_DEFAULT_LOCALE = 'zh'
+# Your application default translation path
+BABEL_DEFAULT_FOLDER = 'superset/translations'
+# The allowed translation for you app
+LANGUAGES = {
+    'zh': {'flag': 'cn', 'name': 'Chinese'},
+}
+
+# ---------------------------------------------------
+# Roles config
+# ---------------------------------------------------
+# Grant public role the same set of permissions as for the GAMMA role.
+# This is useful if one wants to enable anonymous users to view
+# dashboards. Explicit grant on specific datasets is still required.
+PUBLIC_ROLE_LIKE_GAMMA = True
+
+# ------------------------------
+# GLOBALS FOR APP Builder
+# ------------------------------
+# Uncomment to setup Your App name
+APP_NAME = 'Qimao-Superset'
+
+# Uncomment to setup an App icon
+# APP_ICON = '/static/assets/images/superset-logo@2x.png'
+
+SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://superset:27P4DRFKpnPkHaJ8PK@rm-2zenf3n1fu96zs4z6.mysql.rds.aliyuncs.com:3306/superset?charset=utf8'
+
+# add on 2022-10-26
+#from cachelib.redis import RedisCache
+RESULTS_BACKEND = RedisCache(host='172.17.0.1', port=6379, key_prefix='superset_results')
 
 
-DATABASE_DIALECT = get_env_variable("DATABASE_DIALECT")
-DATABASE_USER = get_env_variable("DATABASE_USER")
-DATABASE_PASSWORD = get_env_variable("DATABASE_PASSWORD")
-DATABASE_HOST = get_env_variable("DATABASE_HOST")
-DATABASE_PORT = get_env_variable("DATABASE_PORT")
-DATABASE_DB = get_env_variable("DATABASE_DB")
-
-# The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = "%s://%s:%s@%s:%s/%s" % (
-    DATABASE_DIALECT,
-    DATABASE_USER,
-    DATABASE_PASSWORD,
-    DATABASE_HOST,
-    DATABASE_PORT,
-    DATABASE_DB,
-)
-
-# hard code by james
-SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://superset:superset@host.docker.internal:3306/superset?charset=utf8'
-SQLALCHEMY_ECHO = True
-
-REDIS_HOST = get_env_variable("REDIS_HOST")
-REDIS_PORT = get_env_variable("REDIS_PORT")
-REDIS_CELERY_DB = get_env_variable("REDIS_CELERY_DB", "0")
-REDIS_RESULTS_DB = get_env_variable("REDIS_RESULTS_DB", "1")
-
-RESULTS_BACKEND = FileSystemCache("/app/superset_home/sqllab")
-
+# ADD on 2022-10-16
+REDIS_HOST = '172.17.0.1'
+REDIS_PORT = 6379
+REDIS_CELERY_DB = 2
+REDIS_RESULTS_DB = 3
+REDIS_CACHE_DB = 4
 
 class CeleryConfig(object):
     BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CELERY_DB}"
     CELERY_IMPORTS = ("superset.sql_lab",)
-    CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_RESULTS_DB}"
-    CELERYD_LOG_LEVEL = "DEBUG"
-    CELERYD_PREFETCH_MULTIPLIER = 1
-    CELERY_ACKS_LATE = False
-    CELERYBEAT_SCHEDULE = {
-        "reports.scheduler": {
-            "task": "reports.scheduler",
-            "schedule": crontab(minute="*", hour="*"),
-        },
-        "reports.prune_log": {
-            "task": "reports.prune_log",
-            "schedule": crontab(minute=10, hour=0),
-        },
-    }
-
+    RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_RESULTS_DB}"
+    CELERY_ANNOTATIONS = {"sql_lab.add": {"rate_limit": "10/s"}}
+    CONCURRENCY = 1
 
 CELERY_CONFIG = CeleryConfig
 
-FEATURE_FLAGS = {"ALERT_REPORTS": True}
-ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
-WEBDRIVER_BASEURL = "http://superset:8088/"
-# The base URL for the email report hyperlinks.
-WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
+# Default cache for Superset objects
+CACHE_CONFIG = {
+    "CACHE_TYPE": "RedisCache",
+    "CACHE_DEFAULT_TIMEOUT": 3600,
+    "CACHE_KEY_PREFIX": "superset_cache",
+    "CACHE_REDIS_URL": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CACHE_DB}",
+}
 
-SQLLAB_CTAS_NO_LIMIT = True
+# Cache for datasource metadata and query results
+DATA_CACHE_CONFIG = {
+    **CACHE_CONFIG,
+    "CACHE_DEFAULT_TIMEOUT": 3600,
+    "CACHE_KEY_PREFIX": "superset_data_cache",
+}
 
-#
-# Optionally import superset_config_docker.py (which will have been included on
-# the PYTHONPATH) in order to allow for local settings to be overridden
-#
-try:
-    import superset_config_docker
-    from superset_config_docker import *  # noqa
+COMPRESS_REGISTER = True
 
-    logger.info(
-        f"Loaded your Docker configuration at " f"[{superset_config_docker.__file__}]"
-    )
-except ImportError:
-    logger.info("Using default Docker config...")
+# Cache for dashboard filter state (`CACHE_TYPE` defaults to `SimpleCache` when
+#  running in debug mode unless overridden)
+FILTER_STATE_CACHE_CONFIG: CacheConfig = {
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=90).total_seconds()),
+    # should the timeout be reset when retrieving a cached value
+    "REFRESH_TIMEOUT_ON_RETRIEVAL": True,
+    "CACHE_TYPE": "RedisCache",
+}
+
+# Cache for explore form data state (`CACHE_TYPE` defaults to `SimpleCache` when
+#  running in debug mode unless overridden)
+EXPLORE_FORM_DATA_CACHE_CONFIG: CacheConfig = {
+    "CACHE_DEFAULT_TIMEOUT": int(timedelta(days=7).total_seconds()),
+    # should the timeout be reset when retrieving a cached value
+    "REFRESH_TIMEOUT_ON_RETRIEVAL": True,
+    "CACHE_TYPE": "RedisCache"
+}
+
+SECRET_KEY = '\2\1thisismyscretkey\1\2\e\y\y\h'
