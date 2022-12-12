@@ -37,15 +37,15 @@ APP_NAME = 'Qimao-Superset'
 # Uncomment to setup an App icon
 # APP_ICON = '/static/assets/images/superset-logo@2x.png'
 
-SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://superset:superset@host.docker.internal:3306/superset?charset=utf8'
+SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://superset:superset@172.17.0.1:3306/superset?charset=utf8'
 
 # add on 2022-10-26
 #from cachelib.redis import RedisCache
-RESULTS_BACKEND = RedisCache(host='host.docker.internal', port=6379, key_prefix='superset_results')
+RESULTS_BACKEND = RedisCache(host='172.17.0.1', port=6379, key_prefix='superset_results')
 
 
 # ADD on 2022-10-16
-REDIS_HOST = 'host.docker.internal'
+REDIS_HOST = '172.17.0.1'
 REDIS_PORT = 6379
 REDIS_CELERY_DB = 2
 REDIS_RESULTS_DB = 3
