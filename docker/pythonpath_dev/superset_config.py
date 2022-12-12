@@ -9,7 +9,7 @@ from cachelib.redis import RedisCache
 
 
 ROW_LIMIT = 5000
-SUPERSET_WEBSERVER_PORT = 18008
+SUPERSET_WEBSERVER_PORT = 8088
 
 # Setup default language
 BABEL_DEFAULT_LOCALE = 'zh'
@@ -32,7 +32,7 @@ PUBLIC_ROLE_LIKE_GAMMA = True
 # GLOBALS FOR APP Builder
 # ------------------------------
 # Uncomment to setup Your App name
-APP_NAME = 'Qimao-Superset'
+APP_NAME = 'James-Superset'
 
 # Uncomment to setup an App icon
 # APP_ICON = '/static/assets/images/superset-logo@2x.png'
