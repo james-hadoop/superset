@@ -25,10 +25,9 @@ from superset.views.base import DeleteMixin, SupersetModelView
 from superset.views.core import DAR
 
 
-class AccessRequestsModelView(  # pylint: disable=too-many-ancestors
-    SupersetModelView,
-    DeleteMixin,
-):
+class AccessRequestsModelView(
+    SupersetModelView, DeleteMixin
+):  # pylint: disable=too-many-ancestors
     datamodel = SQLAInterface(DAR)
     include_route_methods = RouteMethod.CRUD_SET
     list_columns = [

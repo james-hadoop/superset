@@ -143,6 +143,10 @@ const config: ControlPanelConfig = {
     metric: getStandardizedControls().shiftMetric(),
     groupby: getStandardizedControls().popAllColumns(),
   }),
+  updateStandardizedState: (prevState, currState) => ({
+    ...currState,
+    metrics: [currState.metrics[0], ...prevState.metrics.slice(1)],
+  }),
 };
 
 export default config;

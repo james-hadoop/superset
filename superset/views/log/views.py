@@ -26,10 +26,7 @@ from superset.views.base import SupersetModelView
 from . import LogMixin
 
 
-class LogModelView(  # pylint: disable=too-many-ancestors
-    LogMixin,
-    SupersetModelView,
-):
+class LogModelView(LogMixin, SupersetModelView):  # pylint: disable=too-many-ancestors
     datamodel = SQLAInterface(models.Log)
     include_route_methods = {RouteMethod.LIST, RouteMethod.SHOW}
     class_permission_name = "Log"

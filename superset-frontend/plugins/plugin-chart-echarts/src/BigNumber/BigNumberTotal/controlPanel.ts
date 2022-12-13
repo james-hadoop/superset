@@ -101,4 +101,8 @@ export default {
     ...formData,
     metric: getStandardizedControls().shiftMetric(),
   }),
+  updateStandardizedState: (prevState, currState) => ({
+    ...currState,
+    metrics: [currState.metrics[0], ...prevState.metrics.slice(1)],
+  }),
 } as ControlPanelConfig;

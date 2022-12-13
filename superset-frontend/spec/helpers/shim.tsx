@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
@@ -54,7 +53,6 @@ g.window.performance = { now: () => new Date().getTime() };
 g.window.Worker = Worker;
 g.window.IntersectionObserver = IntersectionObserver;
 g.window.ResizeObserver = ResizeObserver;
-g.window.featureFlags = {};
 g.URL.createObjectURL = () => '';
 g.caches = new CacheStorage();
 
@@ -83,10 +81,5 @@ setupSupersetClient();
 jest.mock('src/hooks/useTabId', () => ({
   useTabId: () => 1,
 }));
-
-// Check https://github.com/remarkjs/react-markdown/issues/635
-jest.mock('react-markdown', () => (props: any) => <>{props.children}</>);
-jest.mock('rehype-sanitize', () => () => jest.fn());
-jest.mock('rehype-raw', () => () => jest.fn());
 
 process.env.WEBPACK_MODE = 'test';

@@ -22,7 +22,6 @@ import type {
   AdhocColumn,
   Column,
   DatasourceType,
-  JsonObject,
   JsonValue,
   Metric,
   QueryFormColumn,
@@ -30,7 +29,8 @@ import type {
   QueryFormMetric,
   QueryResponse,
 } from '@superset-ui/core';
-import { sharedControls, sharedControlComponents } from './shared-controls';
+import { sharedControls } from './shared-controls';
+import sharedControlComponents from './shared-controls/components';
 
 export type { Metric } from '@superset-ui/core';
 export type { ControlFormItemSpec } from './components/ControlForm';
@@ -50,14 +50,6 @@ export type SharedControlComponents = typeof sharedControlComponents;
 /** ----------------------------------------------
  * Input data/props while rendering
  * ---------------------------------------------*/
-export interface Owner {
-  first_name: string;
-  id: number;
-  last_name: string;
-  username: string;
-  email?: string;
-}
-
 export type ColumnMeta = Omit<Column, 'id'> & {
   id?: number;
 } & AnyDict;
@@ -75,19 +67,13 @@ export interface Dataset {
   time_grain_sqla?: string;
   granularity_sqla?: string;
   datasource_name: string | null;
-  name?: string;
   description: string | null;
-  uid?: string;
-  owners?: Owner[];
-  filter_select?: boolean;
-  filter_select_enabled?: boolean;
 }
 
 export interface ControlPanelState {
   form_data: QueryFormData;
   datasource: Dataset | QueryResponse | null;
   controls: ControlStateMapping;
-  common: JsonObject;
 }
 
 /**
@@ -207,24 +193,9 @@ export interface BaseControlConfig<
   V = JsonValue,
 > extends AnyDict {
   type: T;
-  label?:
-    | ReactNode
-    | ((
-        state: ControlPanelState,
-        controlState: ControlState,
-        // TODO: add strict `chartState` typing (see superset-frontend/src/explore/types)
-        chartState?: AnyDict,
-      ) => ReactNode);
-  description?:
-    | ReactNode
-    | ((
-        state: ControlPanelState,
-        controlState: ControlState,
-        // TODO: add strict `chartState` typing (see superset-frontend/src/explore/types)
-        chartState?: AnyDict,
-      ) => ReactNode);
+  label?: ReactNode;
+  description?: ReactNode;
   default?: V;
-  initialValue?: V;
   renderTrigger?: boolean;
   validators?: ControlValueValidator<T, O, V>[];
   warning?: ReactNode;
@@ -365,43 +336,37 @@ export type ControlSetRow = ControlSetItem[];
 //  - superset-frontend/src/explore/components/ControlPanelsContainer.jsx
 //  - superset-frontend/src/explore/components/ControlPanelSection.jsx
 export interface ControlPanelSectionConfig {
-  label?: ReactNode;
+  label: ReactNode;
   description?: ReactNode;
   expanded?: boolean;
   tabOverride?: TabOverride;
   controlSetRows: ControlSetRow[];
 }
 
-export interface StandardizedControls {
+export interface StandardizedState {
   metrics: QueryFormMetric[];
   columns: QueryFormColumn[];
 }
 
 export interface StandardizedFormDataInterface {
-  // Controls not used in the current viz
-  controls: StandardizedControls;
-  // Transformation history
+  standardizedState: StandardizedState;
   memorizedFormData: Map<string, QueryFormData>;
 }
-
-export type QueryStandardizedFormData = QueryFormData & {
-  standardizedFormData: StandardizedFormDataInterface;
-};
-
-export const isStandardizedFormData = (
-  formData: QueryFormData,
-): formData is QueryStandardizedFormData =>
-  formData?.standardizedFormData?.controls &&
-  formData?.standardizedFormData?.memorizedFormData &&
-  Array.isArray(formData.standardizedFormData.controls.metrics) &&
-  Array.isArray(formData.standardizedFormData.controls.columns);
 
 export interface ControlPanelConfig {
   controlPanelSections: (ControlPanelSectionConfig | null)[];
   controlOverrides?: ControlOverrides;
   sectionOverrides?: SectionOverrides;
   onInit?: (state: ControlStateMapping) => void;
-  formDataOverrides?: (formData: QueryFormData) => QueryFormData;
+  denormalizeFormData?: (
+    formData: QueryFormData & {
+      standardizedFormData: StandardizedFormDataInterface;
+    },
+  ) => QueryFormData;
+  updateStandardizedState?: (
+    prevState: StandardizedState,
+    currState: StandardizedState,
+  ) => StandardizedState;
 }
 
 export type ControlOverrides = {
@@ -451,8 +416,10 @@ export type ColorFormatters = {
 
 export default {};
 
-export function isColumnMeta(column: AnyDict): column is ColumnMeta {
-  return !!column && 'column_name' in column;
+export function isColumnMeta(
+  column: AdhocColumn | ColumnMeta,
+): column is ColumnMeta {
+  return 'column_name' in column;
 }
 
 export function isSavedExpression(
@@ -461,6 +428,12 @@ export function isSavedExpression(
   return (
     'column_name' in column && 'expression' in column && !!column.expression
   );
+}
+
+export function isAdhocColumn(
+  column: AdhocColumn | ColumnMeta,
+): column is AdhocColumn {
+  return 'label' in column && 'sqlExpression' in column;
 }
 
 export function isControlPanelSectionConfig(
@@ -478,5 +451,9 @@ export function isDataset(
 export function isQueryResponse(
   datasource: Dataset | QueryResponse | null | undefined,
 ): datasource is QueryResponse {
-  return !!datasource && 'results' in datasource && 'sql' in datasource;
+  return (
+    !!datasource &&
+    ('results' in datasource ||
+      datasource?.type === ('query' as DatasourceType.Query))
+  );
 }
