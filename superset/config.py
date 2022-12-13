@@ -313,7 +313,7 @@ PUBLIC_ROLE_LIKE: Optional[str] = None
 # Babel config for translations
 # ---------------------------------------------------
 # Setup default language
-BABEL_DEFAULT_LOCALE = "en"
+BABEL_DEFAULT_LOCALE = "zh"
 # Your application default translation path
 BABEL_DEFAULT_FOLDER = "superset/translations"
 # The allowed translation for you app
@@ -335,7 +335,9 @@ LANGUAGES = {
 }
 # Turning off i18n by default as translation in most languages are
 # incomplete and not well maintained.
-LANGUAGES = {}
+LANGUAGES = {
+    'zh': {'flag': 'cn', 'name': 'Chinese'},
+}
 
 # ---------------------------------------------------
 # Feature flags
