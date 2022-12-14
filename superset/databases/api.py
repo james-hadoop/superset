@@ -713,7 +713,13 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         # This validates custom Schema with custom validations
         except ValidationError as error:
             return self.response_400(message=error.messages)
+<<<<<<< HEAD
         TestConnectionDatabaseCommand(g.user, item).run()
+=======
+        logger.warning(f"->=>| item = {item}")
+        logger.warning(f"->=>| request.json = {request.json}")
+        TestConnectionDatabaseCommand(item).run()
+>>>>>>> a254c049c (add debug code)
         return self.response(200, message="OK")
 
     @expose("/<int:pk>/related_objects/", methods=["GET"])

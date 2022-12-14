@@ -1601,6 +1601,9 @@ def time_function(
     :return: A tuple with the duration and response from the function
     """
     start = default_timer()
+
+    logger.warning(f"->=>| args = {args[0]}")
+    logger.warning(f"->=>| kwargs = {kwargs[0]}")
     response = func(*args, **kwargs)
     stop = default_timer()
     return (stop - start) * 1000.0, response

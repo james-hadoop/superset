@@ -145,6 +145,7 @@ class TestConnectionDatabaseCommand(BaseCommand):
                 action=f"test_connection_error.{ex.__class__.__name__}",
                 engine=database.db_engine_spec.__name__,
             )
+            logger.warning(f"->=>| DBAPIError = {ex.__class__.__name__} # {database.db_engine_spec.__name__}")
             # check for custom errors (wrong username, wrong password, etc)
             errors = database.db_engine_spec.extract_errors(ex, context)
             raise DatabaseTestConnectionFailedError(errors) from ex

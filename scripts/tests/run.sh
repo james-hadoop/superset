@@ -125,7 +125,6 @@ echo Run reset DB=$RUN_RESET_DB
 echo Test to run:"${TEST_MODULE}"
 echo ------------------------------------
 
-
 if [ $RUN_RESET_DB -eq 1 ]
 then
   reset_db

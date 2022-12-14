@@ -79,6 +79,7 @@ def requires_json(f: Callable[..., Any]) -> Callable[..., Any]:
     """
 
     def wraps(self: "BaseSupersetModelRestApi", *args: Any, **kwargs: Any) -> Response:
+        logger.warning(f"->=>| request = {request}")
         if not request.is_json:
             raise InvalidPayloadFormatError(message="Request is not JSON")
         return f(self, *args, **kwargs)
@@ -109,6 +110,9 @@ def statsd_metrics(f: Callable[..., Any]) -> Callable[..., Any]:
     def wraps(self: "BaseSupersetModelRestApi", *args: Any, **kwargs: Any) -> Response:
         try:
             duration, response = time_function(f, self, *args, **kwargs)
+            logger.warning(f"->=>| duration = {duration}")
+            logger.warning(f"->=>| response = {response}")
+
         except Exception as ex:
             self.incr_stats("error", f.__name__)
             raise ex
